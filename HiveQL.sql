@@ -7,8 +7,11 @@ row format delimited fields terminated by '\t';
 // overwrite告诉Hive删除表对应目录中已有的所有文件，即清空表信息后添加后加载的数据
 load data local inpath '/usr/local/sample.txt' overwrite into table records;
 
-清空表中的数据
+清空托管表中的数据
 truncate table records;
+
+描述表信息
+desc records;
 
 查询每年最大温度
 select year, max(temperature) from records 
@@ -62,8 +65,29 @@ select ts, line, dt from logs
 where country = 'GB';
 
 
-//桶
+桶
+//建立桶设置
+//每个桶对应一个reduce任务，共输出4个文件
+//根据id对桶数的hash值(即余数)确定一个桶
+set hive.enforce.bucketing=true;
+create table bucketed_user(id int, name string)
+clustered by (id) into 4 buckets;
+//tablesample取样查询
+//bucket 1 out of 4 on id 对于id的桶，查询第一个桶的数据
+//查询桶目录
+hive> dfs -ls	/user/hive/warehouse/bucketed_users;
+//查看桶文件
+hive> dfs -cat	/user/hive/warehouse/bucketed_users/000000_0;
+//四个桶中的第一个桶,返回四分之一数据
+select * from bucketed_users tablesample(bucket 1 out of 4 on id);
 
+tablesample
+//返回约二分之一数据
+select * from bucketed_users tablesample(bucket 1 out of 2 on id);
+//返回约三分之一数据
+select * from bucketed_users tablesample(bucket 1 out of 3 on id);
+//rand()对未划分桶的表取样
+select * from users tablesample(bucket 1 out of 4 on rand())
 
 
 存储格式
@@ -89,24 +113,24 @@ with serdeproperties(
 
 
 导入数据
-//insert
+//insert,有overwrite就不需要用into了
 //固定分区
-insert overwrite into table target
+insert overwrite  table target
 partition (dt = '2001-01-01')
 select s1, s2 from source;
 //动态分区dt根据select中dt插入
-insert overwrite into table target
+insert overwrite  table target
 partition(dt)
 select s1, s2, dt from source
 //多表插入
 from records
-insert overwrite into table table1
+insert overwrite  table table1
 select year, count(distinct station)
 group by year
-insert overwrite into table table2
+insert overwrite  table table2
 select year, count(1)
 group by year
-insert overwrite into table table3
+insert overwrite  table table3
 select year, count(1)
 where quality in (0,1,2,3,4,5)
 group by year;
@@ -115,7 +139,8 @@ create table target as select s1, s2 from source;
 
 表的修改
 //重命名
-//只修改元数据
+//外部表只修改元数据
+//托管表修改元数据并移动存储数据的目录
 alter table name1 rename to name2;
 //添加列
 alter table name1 add columns (s3 string);
@@ -127,4 +152,5 @@ truncate table table1;
 drop table table1;
 //创建相同格式表 like
 create table table2 like table1;
+
 
