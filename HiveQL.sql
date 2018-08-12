@@ -1,3 +1,24 @@
+//创建数据库
+//不指定数据库则使用default
+CREATE DATABASE financials;
+CREATE DATABASE IF NOT EXISTS financials;
+SHOW DATABASES;
+//正则表达式筛选数据库
+//(.*)筛选出financials
+SHOW DATABASES LIKE 'f.*'
+//修改数据库位置
+CREATE DATABASE financials 
+LOCATION '/usr/local/hello';
+//数据库添加描述信息
+CREATE DATABASE financials 
+COMMENT 'holds all financial tables';
+DESCRIBE DATABASE financials;
+CREATE DATABASE financials
+WITH DBPROTERTIES('creator' = 'Mark Moneybags', 'date' = '2018-08-12');
+DESCRIBE DATABASE financials;
+DROP DATABASE IF EXISTS financials CASCADE;//CASCADE先删除表，再删除数据库
+
+
 建表
 // row format delimited fields terminated by '\t'	使用tab分隔行字段
 create table records(year string, temperature int, quality int) 
