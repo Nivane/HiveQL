@@ -93,6 +93,7 @@ hadoop fs -cp from to
 insert overwrite local directory '/tmp'
 select name, salary
 from employees;
+$bin/hive -e "select name, salary, from employees;" > /tmp
 
 
 
