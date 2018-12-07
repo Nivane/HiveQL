@@ -1,5 +1,12 @@
 HIVE SQL
 
+select user_id, sum(score) over (partition by user_id) from users where scores > 60;
+
+select user_id, concat_ws(',', collect_list(score)) as scores from users group by user_id;
+
+select user_id, score from users lateral view explode(split(scores, ',' )) s as score;
+
+
 MONTH1 MONTH2 ...
 
 MON PROFIT
@@ -10,7 +17,7 @@ MON PROFIT
 SED AWK
 
 
-OVER PARTITION BY GROUP BY
+OVER PARTITION BY
 
 
 ABBCFCGF
