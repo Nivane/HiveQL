@@ -15,7 +15,7 @@ load data inpath 'hdfs://ns1/sample.txt' overwrite into table managed_table;
 
 复杂数据类型
 // array map struct
-//fileds terminated by 
+//fields terminated by 
 // collection items terminated by
 // map keys terminated by
 create table complex(c1 int, c2 array<int>, c3 map<string, int>, c4 struct<a:string, b:string>)
@@ -94,6 +94,3 @@ insert overwrite local directory '/tmp'
 select name, salary
 from employees;
 $bin/hive -e "select name, salary, from employees;" > /tmp
-
-
-
